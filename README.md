@@ -6,7 +6,7 @@ Track visited buffers and jump back to them, like `bp`/`bn` but in the order of 
 ### Motivation
 I want to cycle between a few buffers which I constantly edit/visit, but I don't want to actively maintain the tracked buffer list.
 Harpoon-likes are too involving to use, while `bp`/`bn` requires too many invocations to find the correct buffer. So `buftrack.nvim`
-serves as a middle ground, heuristically maintaining the tracked buffer list.
+serves as a middle ground by tracking buffers heuristically.
 
 ## Installation
 ### lazy.nvim
