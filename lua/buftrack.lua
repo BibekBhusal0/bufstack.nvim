@@ -38,21 +38,20 @@ local on_buffer_close = function (args)
   local buf = args.buf
 
   -- Check if buffer is valid
-  if (bufvalid (buf)) then
-    local buf_name = vim.api.nvim_buf_get_name(buf)
+  if not (bufvalid (buf)) then return end
+  local buf_name = vim.api.nvim_buf_get_name(buf)
 
-    -- Remove existing entry if present
-    for i, closed_buf in ipairs(M.closed_buffers) do
-      if closed_buf == buf_name then
-        table.remove(M.closed_buffers, i)
-      end
+  -- Remove existing entry if present
+  for i, closed_buf in ipairs(M.closed_buffers) do
+    if closed_buf == buf_name then
+      table.remove(M.closed_buffers, i)
     end
-    table.insert(M.closed_buffers, buf_name)
+  end
+  table.insert(M.closed_buffers, buf_name)
 
-    -- Cap buffer list size
-    if #M.closed_buffers > M.max_tracked then
-      table.remove(M.closed_buffers, 1)
-    end
+  -- Cap buffer list size
+  if #M.closed_buffers > M.max_tracked then
+    table.remove(M.closed_buffers, 1)
   end
 end
 
