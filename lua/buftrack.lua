@@ -107,21 +107,74 @@ function M.prev_buffer()
   M.cycling = false
 end
 
-function M.print_tracked_buffers()
-  if #M.buffers == 0 then
-    print("[buftrack.nvim] No tracked buffers.")
-    return
-  end
+local menu_opts = {
+  position = "50%",
+  size = {
+    width = 60,
+    height = 20,
+  },
+  border = {
+    style = "single",
+    text = {
+      top = " Buffers ",
+      top_align = "center",
+    },
+  },
+}
+local keymap = {
+  focus_next = { "j", "<Down>" },
+  focus_prev = { "k", "<Up>" },
+  close = { "<Esc>", "<C-c>", "q" },
+  submit = { "<CR>", "<Space>" },
+}
 
-  print("[buftrack.nvim] Tracked Buffers:")
-  for i, buf in ipairs(M.buffers) do
+function M.buffers_list ()
+  local Menu = require("nui.menu")
+  local MenuItems = {}
+
+  for _, buf in ipairs(M.buffers) do
     if vim.api.nvim_buf_is_valid(buf) then
       local name = vim.api.nvim_buf_get_name(buf)
       if name == "" then name = "[No Name]" end
-      print(i .. ": " .. name)
+      table.insert(MenuItems, Menu.item(name, {buf = buf }))
     end
   end
-  print("[buftrack.nvim] Cursor: ", M.index)
+
+  local menu = Menu(menu_opts, {
+    lines = MenuItems,
+    keymap = keymap,
+    on_submit = function(item)
+      vim.api.nvim_set_current_buf(item.buf)
+    end,
+  })
+
+  menu:mount()
+end
+
+function M.closed_buffers_list ()
+  local Menu = require("nui.menu")
+
+  local MenuItems = vim.tbl_map(
+    function(buf) return Menu.item(buf) end,
+    M.closed_buffers
+  )
+
+  local menu = Menu( menu_opts, {
+    lines = MenuItems,
+    keymap = keymap,
+    on_submit = function(item)
+      vim.cmd('edit ' .. item.text)
+
+      -- Remove the reopened buffer from the closed_buffers list
+      for i, closed_buf in ipairs(M.closed_buffers) do
+        if closed_buf == item.text then
+          table.remove(M.closed_buffers, i)
+          break
+        end
+      end
+    end,
+  })
+  menu:mount()
 end
 
 function M.clear_tracked_buffers()
@@ -142,11 +195,12 @@ function M.setup(opts)
     callback = on_buffer_close
   })
 
-  vim.api.nvim_create_user_command("BufRepoen", M.reopen_buffer, {})
+  vim.api.nvim_create_user_command("BufReopen", M.reopen_buffer, {})
   vim.api.nvim_create_user_command("BufTrack", M.track_buffer, {})
   vim.api.nvim_create_user_command("BufTrackPrev", M.prev_buffer, {})
   vim.api.nvim_create_user_command("BufTrackNext", M.next_buffer, {})
-  vim.api.nvim_create_user_command("BufTrackList", M.print_tracked_buffers, {})
+  vim.api.nvim_create_user_command("BufTrackList", M.buffers_list, {})
+  vim.api.nvim_create_user_command("BufClosedList", M.closed_buffers_list, {})
   vim.api.nvim_create_user_command("BufTrackClear", M.clear_tracked_buffers, {})
 end
 
