@@ -142,7 +142,7 @@ function M.setup(opts)
     callback = on_buffer_close
   })
 
-  vim.api.nvim_create_user_command("BufRepoen", M.reopen_buffer, {})
+  vim.api.nvim_create_user_command("BufReopen", M.reopen_buffer, {})
   vim.api.nvim_create_user_command("BufTrack", M.track_buffer, {})
   vim.api.nvim_create_user_command("BufTrackPrev", M.prev_buffer, {})
   vim.api.nvim_create_user_command("BufTrackNext", M.next_buffer, {})
