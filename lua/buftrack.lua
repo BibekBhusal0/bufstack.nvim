@@ -45,8 +45,6 @@ local on_buffer_close = function (args)
     for i, closed_buf in ipairs(M.closed_buffers) do
       if closed_buf == buf_name then
         table.remove(M.closed_buffers, i)
-        table.insert(M.closed_buffers, buf_name)
-        return
       end
     end
     table.insert(M.closed_buffers, buf_name)
