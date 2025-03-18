@@ -4,6 +4,7 @@ M.buffers = {}
 M.index = 1
 M.cycling = false
 M.max_tracked = nil
+M.closed_buffers =  {}
 
 function M.track_buffer()
   if M.cycling then return end
@@ -31,6 +32,39 @@ local function bufvalid(bufnr)
       and vim.api.nvim_buf_is_valid(bufnr)
       and vim.bo[bufnr].buflisted
       and vim.bo[bufnr].buftype == ""
+end
+
+local on_buffer_close = function (args)
+  local buf = args.buf
+
+  -- Check if buffer is valid
+  if (bufvalid (buf)) then
+    local buf_name = vim.api.nvim_buf_get_name(buf)
+
+    -- Remove existing entry if present
+    for i, closed_buf in ipairs(M.closed_buffers) do
+      if closed_buf == buf_name then
+        table.remove(M.closed_buffers, i)
+        table.insert(M.closed_buffers, buf_name)
+        return
+      end
+    end
+    table.insert(M.closed_buffers, buf_name)
+
+    -- Cap buffer list size
+    if #M.closed_buffers > M.max_tracked then
+      table.remove(M.closed_buffers, 1)
+    end
+  end
+end
+
+function M.reopen_buffer()
+  if #M.closed_buffers > 0 then
+    local last_closed_buf = table.remove(M.closed_buffers)
+    vim.cmd('edit ' .. last_closed_buf)
+  else
+    print("No closed buffers to reopen.")
+  end
 end
 
 local function get_valid_buffer(start_index, direction)
@@ -107,6 +141,11 @@ function M.setup(opts)
     callback = M.track_buffer
   })
 
+  vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
+    callback = on_buffer_close
+  })
+
+  vim.api.nvim_create_user_command("BufRepoen", M.reopen_buffer, {})
   vim.api.nvim_create_user_command("BufTrack", M.track_buffer, {})
   vim.api.nvim_create_user_command("BufTrackPrev", M.prev_buffer, {})
   vim.api.nvim_create_user_command("BufTrackNext", M.next_buffer, {})
