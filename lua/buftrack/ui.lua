@@ -1,6 +1,5 @@
 local core = require("buftrack.core")
-local bufvalid = require("buftrack.utils").bufvalid
-local remove = require("buftrack.utils").remove
+local utils = require("buftrack.utils")
 local M = {}
 
 local menu_opts = {
@@ -31,7 +30,7 @@ function M.buffers_list()
 
 	for i = #core.buffers, 1, -1 do
 		local buf = core.buffers[i]
-		if bufvalid(buf) then
+		if utils.bufvalid(buf) then
 			local name = vim.api.nvim_buf_get_name(buf)
 			if name == "" then
 				name = "[No Name]"
@@ -65,7 +64,7 @@ function M.buffers_list()
 		if not current_item then
 			return
 		end
-		remove(core.buffers, current_item.buf)
+		utils.remove(core.buffers, current_item.buf)
 		update()
 	end
 
@@ -89,7 +88,7 @@ function M.buffers_list()
 		if not current_item then
 			return
 		end
-		remove(core.buffers, current_item.buf)
+		utils.remove(core.buffers, current_item.buf)
 		table.insert(core.buffers, current_item.buf)
 		update()
 	end
@@ -124,14 +123,14 @@ function M.closed_buffers_list()
 					return
 				end
 				vim.cmd("edit " .. item.text)
-				remove(core.closed_buffers, item.text)
+				utils.remove(core.closed_buffers, item.text)
 			end,
 		})
 
 	local update = function()
 		core.cycling = true
 		menu:unmount()
-		core.closed_buffers_list()
+		M.closed_buffers_list()
 		core.cycling = false
 	end
 
@@ -139,7 +138,7 @@ function M.closed_buffers_list()
 		if not current_item then
 			return
 		end
-		remove(core.closed_buffers, current_item.text)
+		utils.remove(core.closed_buffers, current_item.text)
 		update()
 	end
 
@@ -147,7 +146,7 @@ function M.closed_buffers_list()
 		if #core.closed_buffers == 0 then
 			return
 		end
-		core.closed_buffers = {}
+		core.clear_closed()
 		update()
 	end
 
@@ -155,7 +154,7 @@ function M.closed_buffers_list()
 		if not current_item then
 			return
 		end
-		remove(core.closed_buffers, current_item.text)
+		utils.remove(core.closed_buffers, current_item.text)
 		table.insert(core.closed_buffers, current_item.text)
 		update()
 	end

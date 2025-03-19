@@ -16,7 +16,15 @@ local remove = function(tb, item, remove_all)
 	end
 end
 
+local function cap_list_size(list, max_size)
+	max_size = max_size or require("buftrack.core").max_tracked
+	while #list > max_size do
+		table.remove(list, 1)
+	end
+end
+
 return {
 	bufvalid = bufvalid,
 	remove = remove,
+	cap_list_size = cap_list_size,
 }
