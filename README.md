@@ -1,45 +1,81 @@
 # buftrack.nvim
 
-## Purpose
-Track visited buffers and jump back to them, like `bp`/`bn` but in the order of visit instead of load.
+A neovim plugin to cycle through recently used order and reopen recently closed buffers.
 
-### Motivation
-I want to cycle between a few buffers which I constantly edit/visit, but I don't want to actively maintain the tracked buffer list.
-Harpoon-likes are too involving to use, while `bp`/`bn` requires too many invocations to find the correct buffer. So `buftrack.nvim`
-serves as a middle ground by tracking buffers heuristically.
+## Features
 
-## Installation
-### lazy.nvim
+- Tracks recently used and recently closed buffers.
+- Lists tracked buffers in a menu (`BufTrackList`, `BufClosedList`).
+- Navigates through tracked buffers (`BufTrackNext`, `BufTrackPrev`).
+- Reopens closed buffers (`BufReopen`).
+- Clears tracked and closed buffers (`BufTrackClear`, `BufClosedClear`, `BufClear`).
+
+## Usage
+
+### Installation
+
+Using lazy.nvim:
+
 ```lua
-{
-  'bloznelis/buftrack.nvim',
-  config = function()
-    local buftrack = require('buftrack')
-    buftrack.setup()
-
-    -- Not required but recommended. Once you start inserting text,
-    -- this will move the current buffer to the top of the tracklist.
-    vim.api.nvim_create_autocmd({ "InsertEnter" }, {
-      callback = buftrack.track_buffer
-    })
-
-    vim.keymap.set("n", "<C-j>", buftrack.prev_buffer)
-    vim.keymap.set("n", "<C-k>", buftrack.next_buffer)
-  end
+return {
+    'BibekBhusal0/buftrack.nvim',
+    dependencies = { 'MunifTanjim/nui.nvim' }, -- required if you want to use menu
+    opts = { max_tracked = 16 }
 }
 ```
 
-### Available commands
-- `:BufTrack` - Move the current buffer to the top of the tracking list
-- `:BufTrackPrev` - Opens previous buffer in the tracking list
-- `:BufTrackNext` - Opens next buffer in the tracking list
-- `:BufTrackList` - Prints the tracking list
-- `:BufTrackClear` - Clears the tracking list
+### Configuration
 
-### Config
-To change defaults:
 ```lua
-buftrack.setup({
-  max_tracked = 16 -- Size limit of the buffer tracking list (oldest buffers are dropped)
+require('buftrack').setup({
+  max_tracked = 16, -- Default: 16
 })
 ```
+
+### Commands
+
+- `BufTrack`: Tracks the current buffer.
+- `BufTrackNext`: Navigates to the next tracked buffer.
+- `BufTrackPrev`: Navigates to the previous tracked buffer.
+- `BufTrackList`: Lists tracked buffers in a menu.
+- `BufClosedList`: Lists recently closed buffers in a menu.
+- `BufReopen`: Reopens the last closed buffer.
+- `BufTrackClear`: Clears the list of tracked buffers.
+- `BufClosedClear`: Clears the list of closed buffers.
+- `BufClear`: Clears both tracked and closed buffers lists.
+
+### Key Mappings (Example)
+
+```lua
+vim.keymap.set('n', '<leader>bn', '<Cmd>BufTrackNext<CR>')
+vim.keymap.set('n', '<leader>bp', '<Cmd>BufTrackPrev<CR>')
+vim.keymap.set('n', '<leader>bl', '<Cmd>BufTrackList<CR>')
+vim.keymap.set('n', '<leader>br', '<Cmd>BufReopen<CR>')
+```
+
+### Keymaps in Menu
+
+Menu of tracked buffer and recently closed buffers can be opened with commands `BufTrackList` and `BufClosedList` respectively.
+
+Keymaps in the menu are:
+
+- j and arrow down for next item
+- k and arrow up for previous item
+- enter or space to select item
+- esc or q to close menu
+- d to remove item from list
+- D to remove all items from list
+- t to move item to the top of the list
+- x to close buffer (only in tracked buffer menu)
+
+## Dependencies
+
+- [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
+
+## Credits
+
+- [bloznelis](https://github.com/bloznelis/buftrack.nvim)
+
+## License
+
+MIT
