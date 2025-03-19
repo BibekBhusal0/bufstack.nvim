@@ -73,7 +73,7 @@ function M.buffers_list()
 			return
 		end
 		core.clear_tracked_buffers()
-		update()
+		menu:unmount()
 	end
 
 	local close_buf = function()
@@ -147,7 +147,7 @@ function M.closed_buffers_list()
 			return
 		end
 		core.clear_closed()
-		update()
+		menu:unmount()
 	end
 
 	local move_to_top = function()
