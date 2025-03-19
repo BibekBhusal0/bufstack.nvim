@@ -6,17 +6,20 @@ M.cycling = false
 M.max_tracked = nil
 M.closed_buffers =  {}
 
+local remove = function (tb , item, remove_all )
+  for i, b in ipairs(tb ) do
+    if b == item then
+      table.remove(tb , i)
+      if not remove_all then break end
+    end
+  end
+end
+
 function M.track_buffer()
   if M.cycling then return end
   local buf = vim.api.nvim_get_current_buf()
 
-  -- Remove existing entry if present
-  for i, b in ipairs(M.buffers) do
-    if b == buf then
-      table.remove(M.buffers, i)
-      break
-    end
-  end
+  remove( M.buffers , buf  )
 
   table.insert(M.buffers, buf)
   -- Cap buffer list size
@@ -41,12 +44,7 @@ local on_buffer_close = function (args)
   if not (bufvalid (buf)) then return end
   local buf_name = vim.api.nvim_buf_get_name(buf)
 
-  -- Remove existing entry if present
-  for i, closed_buf in ipairs(M.closed_buffers) do
-    if closed_buf == buf_name then
-      table.remove(M.closed_buffers, i)
-    end
-  end
+  remove( M.closed_buffers , buf_name )
   table.insert(M.closed_buffers, buf_name)
 
   -- Cap buffer list size
@@ -107,21 +105,151 @@ function M.prev_buffer()
   M.cycling = false
 end
 
-function M.print_tracked_buffers()
-  if #M.buffers == 0 then
-    print("[buftrack.nvim] No tracked buffers.")
-    return
-  end
+local menu_opts = {
+  position = "50%",
+  size = {
+    width = 60,
+    height = 20,
+  },
+  border = {
+    style = "single",
+    text = {
+      top = " Buffers ",
+      top_align = "center",
+    },
+  },
+}
+local keymap = {
+  focus_next = { "j", "<Down>" },
+  focus_prev = { "k", "<Up>" },
+  close = { "<Esc>", "<C-c>", "q" },
+  submit = { "<CR>", "<Space>" },
+}
 
-  print("[buftrack.nvim] Tracked Buffers:")
-  for i, buf in ipairs(M.buffers) do
-    if vim.api.nvim_buf_is_valid(buf) then
+function M.buffers_list ()
+  local Menu = require("nui.menu")
+  local MenuItems = {}
+  local current_item = nil
+
+  for i = #M.buffers, 1, -1 do
+    local buf = M.buffers[i]
+    if bufvalid(buf) then
       local name = vim.api.nvim_buf_get_name(buf)
       if name == "" then name = "[No Name]" end
-      print(i .. ": " .. name)
+      table.insert(MenuItems, Menu.item(name, {buf = buf }))
     end
   end
-  print("[buftrack.nvim] Cursor: ", M.index)
+
+  local menu = Menu(menu_opts, {
+    lines =  MenuItems ,
+    keymap = keymap,
+    on_change = function (item )
+      current_item = item
+    end,
+    on_submit = function(item)
+      if not item then return end
+      vim.api.nvim_set_current_buf(item.buf)
+    end,
+  })
+
+  local update = function ()
+    M.cycling = true
+    menu:unmount()
+    M.buffers_list()
+    M.cycling = false
+  end
+
+  local remove_from_list = function ()
+    if not current_item then return end
+    remove( M.buffers , current_item.buf )
+    update()
+  end
+
+  local clear = function ()
+    if #M.buffers == 0 then return end
+    M.clear_tracked_buffers()
+    update()
+  end
+
+  local close_buf = function ()
+    if not current_item then return end
+    vim.cmd( 'bdelete ' .. current_item.buf)
+    update()
+  end
+
+  local move_to_top = function ()
+    if not current_item then return end
+    remove( M.buffers, current_item.buf )
+    table.insert( M.buffers, current_item.buf )
+    update()
+  end
+
+  menu:map( 'n', 'd', remove_from_list )
+  menu:map( 'n', 'D', clear )
+  menu:map( 'n', 'x', close_buf )
+  menu:map( 'n', 't', move_to_top )
+
+  menu:mount()
+end
+
+function M.closed_buffers_list ()
+  local Menu = require("nui.menu")
+  local current_item = nil
+
+  local MenuItems = {}
+  for i = #M.closed_buffers, 1, -1 do
+    local buf = M.closed_buffers[i]
+    table.insert(MenuItems, Menu.item(buf))
+  end
+
+  local menu = Menu(vim.tbl_deep_extend(
+    'force',
+    menu_opts,
+    { border = { text = { top = " Recently closed buffers " } } }
+  ), {
+    lines = MenuItems,
+    keymap = keymap,
+    on_change = function (item)
+      current_item = item
+    end,
+    on_submit = function(item)
+      if not item then return end
+      vim.cmd('edit ' .. item.text)
+      remove(M.closed_buffers , item.text)
+    end,
+  })
+
+  local update = function ()
+    M.cycling = true
+    menu:unmount()
+    M.closed_buffers_list()
+    M.cycling = false
+  end
+
+  local remove_from_list = function ()
+    if not current_item then return end
+    remove( M.closed_buffers , current_item.text )
+    update()
+  end
+
+  local clear = function ()
+    if #M.closed_buffers == 0 then return end
+    M.closed_buffers ={}
+    update()
+  end
+
+  local move_to_top = function ()
+    if not current_item then return end
+    remove( M.closed_buffers, current_item.text )
+    table.insert( M.closed_buffers, current_item.text )
+    update()
+  end
+
+  menu:map( 'n', 'd', remove_from_list )
+  menu:map( 'n', 'D', clear )
+  menu:map( 'n', 't', move_to_top )
+
+  menu:mount()
 end
 
 function M.clear_tracked_buffers()
@@ -146,7 +274,8 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("BufTrack", M.track_buffer, {})
   vim.api.nvim_create_user_command("BufTrackPrev", M.prev_buffer, {})
   vim.api.nvim_create_user_command("BufTrackNext", M.next_buffer, {})
-  vim.api.nvim_create_user_command("BufTrackList", M.print_tracked_buffers, {})
+  vim.api.nvim_create_user_command("BufTrackList", M.buffers_list, {})
+  vim.api.nvim_create_user_command("BufClosedList", M.closed_buffers_list, {})
   vim.api.nvim_create_user_command("BufTrackClear", M.clear_tracked_buffers, {})
 end
 
