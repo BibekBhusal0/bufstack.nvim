@@ -1,4 +1,4 @@
-local utils = require("buftrack.utils")
+local utils = require("bufstack.utils")
 
 local M = {}
 M.buffers = {}

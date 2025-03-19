@@ -1,5 +1,5 @@
-local core = require("buftrack.core")
-local utils = require("buftrack.utils")
+local core = require("bufstack.core")
+local utils = require("bufstack.utils")
 local M = {}
 
 local menu_opts = {

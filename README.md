@@ -1,14 +1,14 @@
-# buftrack.nvim
+# bufstack.nvim
 
 A neovim plugin to cycle through recently used order and reopen recently closed buffers.
 
 ## Features
 
 - Tracks recently used and recently closed buffers.
-- Lists tracked buffers in a menu (`BufTrackList`, `BufClosedList`).
-- Navigates through tracked buffers (`BufTrackNext`, `BufTrackPrev`).
+- Lists tracked buffers in a menu (`BufStackList`, `BufClosedList`).
+- Navigates through tracked buffers (`BufStackNext`, `BufStackPrev`).
 - Reopens closed buffers (`BufReopen`).
-- Clears tracked and closed buffers (`BufTrackClear`, `BufClosedClear`, `BufClear`).
+- Clears tracked and closed buffers (`BufStackClear`, `BufClosedClear`, `BufClear`).
 
 ## Usage
 
@@ -18,7 +18,7 @@ Using lazy.nvim:
 
 ```lua
 return {
-    'BibekBhusal0/buftrack.nvim',
+    'BibekBhusal0/bufstack.nvim',
     dependencies = { 'MunifTanjim/nui.nvim' }, -- required if you want to use menu
     opts = { max_tracked = 16 }
 }
@@ -27,35 +27,35 @@ return {
 ### Configuration
 
 ```lua
-require('buftrack').setup({
+require('bufstack').setup({
   max_tracked = 16, -- Default: 16
 })
 ```
 
 ### Commands
 
-- `BufTrack`: Tracks the current buffer.
-- `BufTrackNext`: Navigates to the next tracked buffer.
-- `BufTrackPrev`: Navigates to the previous tracked buffer.
-- `BufTrackList`: Lists tracked buffers in a menu.
+- `BufStack`: Tracks the current buffer.
+- `BufStackNext`: Navigates to the next tracked buffer.
+- `BufStackPrev`: Navigates to the previous tracked buffer.
+- `BufStackList`: Lists tracked buffers in a menu.
 - `BufClosedList`: Lists recently closed buffers in a menu.
 - `BufReopen`: Reopens the last closed buffer.
-- `BufTrackClear`: Clears the list of tracked buffers.
+- `BufStackClear`: Clears the list of tracked buffers.
 - `BufClosedClear`: Clears the list of closed buffers.
 - `BufClear`: Clears both tracked and closed buffers lists.
 
 ### Key Mappings (Example)
 
 ```lua
-vim.keymap.set('n', '<leader>bn', '<Cmd>BufTrackNext<CR>')
-vim.keymap.set('n', '<leader>bp', '<Cmd>BufTrackPrev<CR>')
-vim.keymap.set('n', '<leader>bl', '<Cmd>BufTrackList<CR>')
+vim.keymap.set('n', '<leader>bn', '<Cmd>BufStackNext<CR>')
+vim.keymap.set('n', '<leader>bp', '<Cmd>BufStackPrev<CR>')
+vim.keymap.set('n', '<leader>bl', '<Cmd>BufStackList<CR>')
 vim.keymap.set('n', '<leader>br', '<Cmd>BufReopen<CR>')
 ```
 
 ### Keymaps in Menu
 
-Menu of tracked buffer and recently closed buffers can be opened with commands `BufTrackList` and `BufClosedList` respectively.
+Menu of tracked buffer and recently closed buffers can be opened with commands `BufStackList` and `BufClosedList` respectively.
 
 Keymaps in the menu are:
 

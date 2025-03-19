@@ -1,6 +1,6 @@
-local core = require("buftrack.core")
-local ui = require("buftrack.ui")
-local utils = require("buftrack.utils")
+local core = require("bufstack.core")
+local ui = require("bufstack.ui")
+local utils = require("bufstack.utils")
 
 local M = {}
 
@@ -30,12 +30,12 @@ M.setup = function(opts)
 	})
 
 	vim.api.nvim_create_user_command("BufReopen", core.reopen_buffer, {})
-	vim.api.nvim_create_user_command("BufTrack", core.track_buffer, {})
-	vim.api.nvim_create_user_command("BufTrackPrev", core.prev_buffer, {})
-	vim.api.nvim_create_user_command("BufTrackNext", core.next_buffer, {})
-	vim.api.nvim_create_user_command("BufTrackList", ui.buffers_list, {})
+	vim.api.nvim_create_user_command("BufStack", core.track_buffer, {})
+	vim.api.nvim_create_user_command("BufStackPrev", core.prev_buffer, {})
+	vim.api.nvim_create_user_command("BufStackNext", core.next_buffer, {})
+	vim.api.nvim_create_user_command("BufStackList", ui.buffers_list, {})
 	vim.api.nvim_create_user_command("BufClosedList", ui.closed_buffers_list, {})
-	vim.api.nvim_create_user_command("BufTrackClear", core.clear_tracked_buffers, {})
+	vim.api.nvim_create_user_command("BufStackClear", core.clear_tracked_buffers, {})
 	vim.api.nvim_create_user_command("BufClear", core.clear, {})
 	vim.api.nvim_create_user_command("BufClosedClear", core.clear_closed, {})
 end
