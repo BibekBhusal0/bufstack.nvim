@@ -131,7 +131,8 @@ function M.buffers_list ()
   local MenuItems = {}
   local current_item = nil
 
-  for _, buf in ipairs(M.buffers) do
+  for i = #M.buffers, 1, -1 do
+    local buf = M.buffers[i]
     if bufvalid(buf) then
       local name = vim.api.nvim_buf_get_name(buf)
       if name == "" then name = "[No Name]" end
@@ -158,13 +159,14 @@ function M.buffers_list ()
     M.cycling = false
   end
 
-  local test = function ()
+  local remove_from_list = function ()
     if not current_item then return end
     remove( M.buffers , current_item.buf )
     update()
   end
 
   local clear = function ()
+    if #M.buffers == 0 then return end
     M.clear_tracked_buffers()
     update()
   end
@@ -182,37 +184,71 @@ function M.buffers_list ()
     update()
   end
 
-  menu:map( 'n', 'd' , test )
-  menu:map( 'n', 'D' , clear )
-  menu:map( 'n', 'x' , close_buf )
-  menu:map( 'n', 't' , move_to_top )
+  menu:map( 'n', 'd', remove_from_list )
+  menu:map( 'n', 'D', clear )
+  menu:map( 'n', 'x', close_buf )
+  menu:map( 'n', 't', move_to_top )
 
   menu:mount()
 end
 
 function M.closed_buffers_list ()
   local Menu = require("nui.menu")
+  local current_item = nil
 
-  local MenuItems = vim.tbl_map(
-    function(buf) return Menu.item(buf) end,
-    M.closed_buffers
-  )
+  local MenuItems = {}
+  for i = #M.closed_buffers, 1, -1 do
+    local buf = M.closed_buffers[i]
+    table.insert(MenuItems, Menu.item(buf))
+  end
 
-  local menu = Menu( menu_opts, {
+  local menu = Menu(vim.tbl_deep_extend(
+    'force',
+    menu_opts,
+    { border = { text = { top = " Recently closed buffers " } } }
+  ), {
     lines = MenuItems,
     keymap = keymap,
+    on_change = function (item)
+      current_item = item
+    end,
     on_submit = function(item)
+      if not item then return end
       vim.cmd('edit ' .. item.text)
-
-      -- Remove the reopened buffer from the closed_buffers list
-      for i, closed_buf in ipairs(M.closed_buffers) do
-        if closed_buf == item.text then
-          table.remove(M.closed_buffers, i)
-          break
-        end
-      end
+      remove(M.closed_buffers , item.text)
     end,
   })
+
+  local update = function ()
+    M.cycling = true
+    menu:unmount()
+    M.closed_buffers_list()
+    M.cycling = false
+  end
+
+  local remove_from_list = function ()
+    if not current_item then return end
+    remove( M.closed_buffers , current_item.text )
+    update()
+  end
+
+  local clear = function ()
+    if #M.closed_buffers == 0 then return end
+    M.closed_buffers ={}
+    update()
+  end
+
+  local move_to_top = function ()
+    if not current_item then return end
+    remove( M.closed_buffers, current_item.text )
+    table.insert( M.closed_buffers, current_item.text )
+    update()
+  end
+
+  menu:map( 'n', 'd', remove_from_list )
+  menu:map( 'n', 'D', clear )
+  menu:map( 'n', 't', move_to_top )
+
   menu:mount()
 end
 
