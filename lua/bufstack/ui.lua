@@ -35,6 +35,9 @@ function M.buffers_list()
 			if name == "" then
 				name = "[No Name]"
 			end
+			if core.shorten_path then
+				name = utils.shorten_path(name)
+			end
 			table.insert(MenuItems, Menu.item(name, { buf = buf }))
 		end
 	end
@@ -108,7 +111,11 @@ function M.closed_buffers_list()
 	local MenuItems = {}
 	for i = #core.closed_buffers, 1, -1 do
 		local buf = core.closed_buffers[i]
-		table.insert(MenuItems, Menu.item(buf))
+		local full_name = core.closed_buffers[i]
+		if core.shorten_path then
+			buf = utils.shorten_path(buf)
+		end
+		table.insert(MenuItems, Menu.item(buf, { full_name = full_name }))
 	end
 
 	local menu =
@@ -122,8 +129,8 @@ function M.closed_buffers_list()
 				if not item then
 					return
 				end
-				vim.cmd("edit " .. item.text)
-				utils.remove(core.closed_buffers, item.text)
+				vim.cmd("edit " .. item.full_name)
+				utils.remove(core.closed_buffers, item.full_name)
 			end,
 		})
 
@@ -138,7 +145,7 @@ function M.closed_buffers_list()
 		if not current_item then
 			return
 		end
-		utils.remove(core.closed_buffers, current_item.text)
+		utils.remove(core.closed_buffers, current_item.full_name)
 		update()
 	end
 
@@ -154,8 +161,8 @@ function M.closed_buffers_list()
 		if not current_item then
 			return
 		end
-		utils.remove(core.closed_buffers, current_item.text)
-		table.insert(core.closed_buffers, current_item.text)
+		utils.remove(core.closed_buffers, current_item.full_name)
+		table.insert(core.closed_buffers, current_item.full_name)
 		update()
 	end
 

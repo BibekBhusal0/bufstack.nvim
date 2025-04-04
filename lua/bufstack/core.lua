@@ -6,6 +6,7 @@ M.index = 1
 M.cycling = false
 M.max_tracked = 16
 M.closed_buffers = {}
+M.shorten_path = false
 
 function M.track_buffer()
 	if M.cycling then

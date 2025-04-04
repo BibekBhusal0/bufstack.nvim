@@ -19,8 +19,14 @@ Using lazy.nvim:
 ```lua
 return {
     'BibekBhusal0/bufstack.nvim',
-    dependencies = { 'MunifTanjim/nui.nvim' }, -- required if you want to use menu
-    opts = { max_tracked = 16 }
+    dependencies = {
+        'MunifTanjim/nui.nvim',        -- required if you want to use menu
+        'nvim-lua/plenary.nvim'        -- required to shorten path
+    },
+    opts = {
+        max_tracked = 16,
+        shorten_path = true
+    }
 }
 ```
 
@@ -29,6 +35,7 @@ return {
 ```lua
 require('bufstack').setup({
   max_tracked = 16, -- Default: 16
+  shorten_path = true, -- Default: false
 })
 ```
 
@@ -71,10 +78,12 @@ Keymaps in the menu are:
 ## Dependencies
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
 ## Credits
 
-- [bloznelis](https://github.com/bloznelis/buftrack.nvim)
+- [buftrack](https://github.com/bloznelis/buftrack.nvim)
+- [memento](https://github.com/gaborvecsei/memento.nvim/tree/master)
 
 ## License
 

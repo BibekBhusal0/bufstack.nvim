@@ -23,8 +23,13 @@ local function cap_list_size(list, max_size)
 	end
 end
 
+local function shorten(path)
+	return require("plenary.path"):new(path):shorten(1)
+end
+
 return {
 	bufvalid = bufvalid,
 	remove = remove,
 	cap_list_size = cap_list_size,
+	shorten_path = shorten,
 }
