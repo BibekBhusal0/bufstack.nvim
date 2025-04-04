@@ -91,8 +91,7 @@ function M.buffers_list()
 		if not current_item then
 			return
 		end
-		utils.remove(core.buffers, current_item.buf)
-		table.insert(core.buffers, current_item.buf)
+		utils.move_to_top(core.buffers, current_item.buf)
 		update()
 	end
 
@@ -161,8 +160,7 @@ function M.closed_buffers_list()
 		if not current_item then
 			return
 		end
-		utils.remove(core.closed_buffers, current_item.full_name)
-		table.insert(core.closed_buffers, current_item.full_name)
+		utils.move_to_top(core.closed_buffers, current_item.full_name)
 		update()
 	end
 

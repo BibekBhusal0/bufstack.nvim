@@ -16,6 +16,11 @@ local remove = function(tb, item, remove_all)
 	end
 end
 
+local move_to_top = function(tb, item, remove_all)
+	remove(tb, item, remove_all)
+	table.insert(tb, item)
+end
+
 local function cap_list_size(list, max_size)
 	max_size = max_size or require("bufstack.core").max_tracked
 	while #list > max_size do
@@ -32,4 +37,5 @@ return {
 	remove = remove,
 	cap_list_size = cap_list_size,
 	shorten_path = shorten,
+	move_to_top = move_to_top,
 }

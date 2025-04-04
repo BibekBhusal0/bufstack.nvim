@@ -17,9 +17,7 @@ function M.track_buffer()
 		return
 	end
 
-	utils.remove(M.buffers, buf)
-
-	table.insert(M.buffers, buf)
+	utils.move_to_top(M.buffers, buf)
 	utils.cap_list_size(M.buffers, M.max_tracked)
 	M.index = #M.buffers
 end

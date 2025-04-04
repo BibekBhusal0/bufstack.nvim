@@ -11,9 +11,7 @@ local on_buffer_close = function(args)
 	end
 	local buf_name = vim.api.nvim_buf_get_name(buf)
 
-	utils.remove(core.closed_buffers, buf_name)
-	table.insert(core.closed_buffers, buf_name)
-
+	utils.move_to_top(core.closed_buffers, buf_name)
 	utils.cap_list_size(core.closed_buffers)
 end
 
