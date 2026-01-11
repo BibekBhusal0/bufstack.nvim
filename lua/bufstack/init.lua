@@ -1,6 +1,7 @@
 local core = require("bufstack.core")
 local ui = require("bufstack.ui")
 local utils = require("bufstack.utils")
+local telescope = require("bufstack.telescope")
 
 local M = {}
 
@@ -35,6 +36,7 @@ M.setup = function(opts)
 	vim.api.nvim_create_user_command("BufStackClear", core.clear_tracked_buffers, {})
 	vim.api.nvim_create_user_command("BufClear", core.clear, {})
 	vim.api.nvim_create_user_command("BufClosedClear", core.clear_closed, {})
+	vim.api.nvim_create_user_command("BufStackTelescope", telescope.reopen, {})
 end
 
 return M

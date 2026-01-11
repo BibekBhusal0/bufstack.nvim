@@ -1,27 +1,40 @@
 local core = require("bufstack.core")
 
 local function reopen()
+	local function createFinder()
+		return require("telescope.finders").new_table({
+			results = core.closed_buffers,
+		})
+	end
 	require("telescope.pickers")
 		.new(
 			{},
 			vim.tbl_deep_extend("force", core.opts.telescope_config, {
 				prompt_title = "Reopen Buffer",
-				finder = require("telescope.finders").new_table({
-					results = core.closed_buffers,
-				}),
+				finder = createFinder(),
 				sorter = require("telescope.config").values.generic_sorter({}),
 
-				attach_mappings = function(prompt_bufnr)
+				attach_mappings = function(prompt_bufnr, map)
 					local actions = require("telescope.actions")
-					local run_action = function(callback)
+					local run_action = function(callback, action)
 						return function()
-							local selection = require("telescope.actions.state").get_selected_entry()
-							actions.close(prompt_bufnr)
-							callback(selection.value)
+							local action_state = require("telescope.actions.state")
+							local selection = action_state.get_selected_entry()
+							if action == "refresh" then
+                callback(selection.value)
+								local current_picker = action_state.get_current_picker(prompt_bufnr)
+								current_picker:refresh(createFinder())
+							else
+								actions.close(prompt_bufnr)
+                callback(selection.value)
+							end
 						end
 					end
 					actions.select_default:replace(run_action(core.reopen_buffer_w_name))
 
+					map({ "n" }, "d", run_action(core.remove_from_closed_list, "refresh"))
+					map({ "n" }, "t", run_action(core.move_closed_buf_to_top, "refresh"))
+					map({ "n" }, "D", run_action(core.clear_closed, "refresh"))
 					return true
 				end,
 			})
