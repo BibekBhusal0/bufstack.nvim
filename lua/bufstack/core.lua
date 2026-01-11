@@ -6,7 +6,22 @@ M.index = 1
 M.cycling = false
 M.max_tracked = 16
 M.closed_buffers = {}
-M.opts = { max_tracked = 16, shorten_path = false }
+M.opts = {
+  max_tracked = 16,
+  shorten_path = false,
+  telescope_config = {
+    sorting_strategy = 'ascending',
+    layout_config = {
+      prompt_position = 'top',
+      width = function(_, max_columns, _)
+        return math.min(max_columns, 80)
+      end,
+      height = function(_, _, max_lines)
+        return math.min(max_lines, 20)
+      end,
+    },
+  }
+}
 
 function M.track_buffer()
 	if M.cycling then
