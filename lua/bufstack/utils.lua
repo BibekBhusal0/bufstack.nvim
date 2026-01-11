@@ -22,7 +22,7 @@ local move_to_top = function(tb, item, remove_all)
 end
 
 local function cap_list_size(list, max_size)
-	max_size = max_size or require("bufstack.core").max_tracked
+	max_size = max_size or require("bufstack.core").opts.max_tracked
 	while #list > max_size do
 		table.remove(list, 1)
 	end

@@ -5,8 +5,7 @@ M.buffers = {}
 M.index = 1
 M.cycling = false
 M.max_tracked = 16
-M.closed_buffers = {}
-M.shorten_path = false
+M.opts = {max_tracked = 16, shorten_path =false}
 
 function M.track_buffer()
 	if M.cycling then
@@ -18,7 +17,7 @@ function M.track_buffer()
 	end
 
 	utils.move_to_top(M.buffers, buf)
-	utils.cap_list_size(M.buffers, M.max_tracked)
+	utils.cap_list_size(M.buffers, M.opts.max_tracked)
 	M.index = #M.buffers
 end
 

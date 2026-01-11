@@ -16,9 +16,7 @@ local on_buffer_close = function(args)
 end
 
 M.setup = function(opts)
-	opts = opts or {}
-	core.max_tracked = opts["max_tracked"] or 16
-	core.shorten_path = opts["shorten_path"] or false
+	core.opts = vim.tbl_deep_extend("force", core.opts, opts)
 
 	vim.api.nvim_create_autocmd({ "BufEnter", "BufLeave" }, {
 		callback = core.track_buffer,

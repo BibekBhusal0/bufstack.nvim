@@ -35,7 +35,7 @@ function M.buffers_list()
 			if name == "" then
 				name = "[No Name]"
 			end
-			if core.shorten_path then
+			if core.opts.shorten_path then
 				name = utils.shorten_path(name)
 			end
 			table.insert(MenuItems, Menu.item(name, { buf = buf }))
@@ -111,7 +111,7 @@ function M.closed_buffers_list()
 	for i = #core.closed_buffers, 1, -1 do
 		local buf = core.closed_buffers[i]
 		local full_name = core.closed_buffers[i]
-		if core.shorten_path then
+		if core.opts.shorten_path then
 			buf = utils.shorten_path(buf)
 		end
 		table.insert(MenuItems, Menu.item(buf, { full_name = full_name }))
