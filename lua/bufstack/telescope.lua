@@ -1,12 +1,26 @@
 local core = require("bufstack.core")
+local utils = require("bufstack.utils")
 
 local function reopen()
+	local fullNameMapping = {}
 	local function createFinder()
+		fullNameMapping = {}
+		local bufNames = {}
+		for i = #core.closed_buffers, 1, -1 do
+			local fullName = core.closed_buffers[i]
+			local buf = fullName
+			if core.opts.shorten_path then
+				buf = utils.shorten_path(buf)
+			end
+			table.insert(bufNames, buf)
+			fullNameMapping[buf] = fullName
+		end
 		return require("telescope.finders").new_table({
-			results = core.closed_buffers,
+			results = bufNames,
 		})
 	end
 	require("telescope.pickers")
+		-- TODO: Multi Selection
 		.new(
 			{},
 			vim.tbl_deep_extend("force", core.opts.telescope_config, {
@@ -19,14 +33,18 @@ local function reopen()
 					local run_action = function(callback, action)
 						return function()
 							local action_state = require("telescope.actions.state")
-							local selection = action_state.get_selected_entry()
+							local selection = action_state.get_selected_entry().value
 							if action == "refresh" then
-                callback(selection.value)
+                if selection ~= nil then
+                  callback(fullNameMapping[selection])
+                end
 								local current_picker = action_state.get_current_picker(prompt_bufnr)
 								current_picker:refresh(createFinder())
 							else
 								actions.close(prompt_bufnr)
-                callback(selection.value)
+                if selection ~= nil then
+                  callback(fullNameMapping[selection])
+                end
 							end
 						end
 					end
