@@ -63,13 +63,19 @@ function M.buffers_list()
 		core.cycling = false
 	end
 
-	local remove_from_list = function()
-		if not current_item then
-			return
+	local run_action = function(callback)
+		return function()
+			if not current_item then
+				return
+			end
+			callback(current_item.buf)
+			update()
 		end
-		utils.remove(core.buffers, current_item.buf)
-		update()
 	end
+
+	local remove_from_list = run_action(function(buf)
+		utils.remove(core.buffers, buf)
+	end)
 
 	local clear = function()
 		if #core.buffers == 0 then
@@ -79,26 +85,14 @@ function M.buffers_list()
 		menu:unmount()
 	end
 
-	local close_buf = function()
-		if not current_item then
-			return
-		end
-		vim.cmd("bdelete " .. current_item.buf)
-		update()
-	end
-
-	local move_to_top = function()
-		if not current_item then
-			return
-		end
-		utils.move_to_top(core.buffers, current_item.buf)
-		update()
-	end
+	local close_buf = run_action(function(buf)
+		vim.cmd("bdelete " .. buf)
+	end)
 
 	menu:map("n", "d", remove_from_list)
 	menu:map("n", "D", clear)
 	menu:map("n", "x", close_buf)
-	menu:map("n", "t", move_to_top)
+	menu:map("n", "t", run_action(core.move_open_buf_to_top))
 
 	menu:mount()
 end
@@ -140,12 +134,14 @@ function M.closed_buffers_list()
 		core.cycling = false
 	end
 
-	local remove_from_list = function()
-		if not current_item then
-			return
+	local run_action = function(callback)
+		return function()
+			if not current_item then
+				return
+			end
+			callback(current_item.full_name)
+			update()
 		end
-		utils.remove(core.closed_buffers, current_item.full_name)
-		update()
 	end
 
 	local clear = function()
@@ -156,17 +152,9 @@ function M.closed_buffers_list()
 		menu:unmount()
 	end
 
-	local move_to_top = function()
-		if not current_item then
-			return
-		end
-		utils.move_to_top(core.closed_buffers, current_item.full_name)
-		update()
-	end
-
-	menu:map("n", "d", remove_from_list)
+	menu:map("n", "d", run_action(core.remove_from_closed_list))
 	menu:map("n", "D", clear)
-	menu:map("n", "t", move_to_top)
+	menu:map("n", "t", run_action(core.move_closed_buf_to_top))
 
 	menu:mount()
 end

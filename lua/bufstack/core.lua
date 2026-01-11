@@ -5,7 +5,8 @@ M.buffers = {}
 M.index = 1
 M.cycling = false
 M.max_tracked = 16
-M.opts = {max_tracked = 16, shorten_path =false}
+M.closed_buffers = {}
+M.opts = { max_tracked = 16, shorten_path = false }
 
 function M.track_buffer()
 	if M.cycling then
@@ -93,6 +94,23 @@ function M.reopen_buffer()
 	else
 		print("No closed buffers to reopen.")
 	end
+end
+
+function M.reopen_buffer_w_name(buffer)
+	vim.cmd("edit" .. buffer)
+	M.remove_from_closed_list(buffer)
+end
+
+function M.remove_from_closed_list(buffer)
+	utils.remove(M.closed_buffers, buffer)
+end
+
+function M.move_closed_buf_to_top(buffer)
+	utils.move_to_top(M.closed_buffers, buffer)
+end
+
+function M.move_open_buf_to_top(buffer)
+	utils.move_to_top(M.buffers, buffer)
 end
 
 return M

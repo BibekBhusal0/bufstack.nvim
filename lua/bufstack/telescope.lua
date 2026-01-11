@@ -18,11 +18,7 @@ local function reopen()
 						callback(selection.value)
 					end
 				end
-				local function reopen_buf(buffer)
-					vim.cmd("edit" .. buffer)
-					utils.remove(core.closed_buffers, buffer)
-				end
-				actions.select_default:replace(run_action(reopen_buf))
+				actions.select_default:replace(run_action(core.reopen_buffer_w_name))
 
 				return true
 			end,
