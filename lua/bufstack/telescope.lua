@@ -20,7 +20,6 @@ local function reopen()
 		})
 	end
 	require("telescope.pickers")
-		-- TODO: Multi Selection
 		.new(
 			{},
 			vim.tbl_deep_extend("force", core.opts.telescope_config, {
@@ -33,18 +32,30 @@ local function reopen()
 					local run_action = function(callback, action)
 						return function()
 							local action_state = require("telescope.actions.state")
-							local selection = action_state.get_selected_entry().value
+							local current_picker = action_state.get_current_picker(prompt_bufnr)
+							local selections = current_picker:get_multi_selection()
+
+							if vim.tbl_isempty(selections) then
+								local selection = action_state.get_selected_entry()
+								if selection ~= nil then
+									table.insert(selections, selection)
+								end
+							end
+
 							if action == "refresh" then
-                if selection ~= nil then
-                  callback(fullNameMapping[selection])
-                end
-								local current_picker = action_state.get_current_picker(prompt_bufnr)
+								for _, selection in ipairs(selections) do
+									if selection ~= nil then
+										callback(fullNameMapping[selection.value])
+									end
+								end
 								current_picker:refresh(createFinder())
 							else
 								actions.close(prompt_bufnr)
-                if selection ~= nil then
-                  callback(fullNameMapping[selection])
-                end
+								for _, selection in ipairs(selections) do
+									if selection ~= nil then
+										callback(fullNameMapping[selection.value])
+									end
+								end
 							end
 						end
 					end
