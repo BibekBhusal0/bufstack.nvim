@@ -115,10 +115,13 @@ Keymaps in telescope are:
 
 ## Dependencies
 
-- [nui.nvim](https://github.com/MunifTanjim/nui.nvim) (optional)
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (optional)
-- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) (optional)
-- [resession.nvim](https://github.com/stevearc/resession.nvim) (optional)
+> [!NOTE]
+> All dependencies are optional for specific feature only.
+
+- [nui.nvim](https://github.com/MunifTanjim/nui.nvim) ( Add this if you use commands `BufClosedList` or `BufStackList`)
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (Add this if you set `shorten_path` to true)
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) (Add this if you use command `BufStackTelescope`)
+- [resession.nvim](https://github.com/stevearc/resession.nvim) (Add this for session management)
 
 ## Credits
 
