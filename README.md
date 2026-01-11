@@ -9,6 +9,8 @@ A neovim plugin to cycle through recently used order and reopen recently closed 
 - Navigates through tracked buffers (`BufStackNext`, `BufStackPrev`).
 - Reopens closed buffers (`BufReopen`).
 - Clears tracked and closed buffers (`BufStackClear`, `BufClosedClear`, `BufClear`).
+- Telescope integration for reopening closed buffers (`BufStackTelescope`).
+- Resession integration for persisting buffer state across sessions.
 
 ## Usage
 
@@ -20,8 +22,10 @@ Using lazy.nvim:
 return {
     'BibekBhusal0/bufstack.nvim',
     dependencies = {
-        'MunifTanjim/nui.nvim',        -- required if you want to use menu
-        'nvim-lua/plenary.nvim'        -- required to shorten path
+        'MunifTanjim/nui.nvim',        -- optional: required for menu
+        'nvim-lua/plenary.nvim',       -- optional: required to shorten path
+        'nvim-telescope/telescope.nvim', -- optional: required for telescope picker
+        'stevearc/resession.nvim'      -- optional: for session persistence
     },
     opts = {
         max_tracked = 16,
@@ -36,6 +40,28 @@ return {
 require('bufstack').setup({
   max_tracked = 16, -- Default: 16
   shorten_path = true, -- Default: false
+  telescope_config = { -- Default: see below
+    sorting_strategy = 'ascending',
+    layout_config = {
+      prompt_position = 'top',
+      width = function(_, max_columns, _)
+        return math.min(max_columns, 80)
+      end,
+      height = function(_, _, max_lines)
+        return math.min(max_lines, 20)
+      end,
+    },
+  }
+})
+```
+
+### Resession Integration
+
+To persist buffer state across sessions, use the resession extension:
+
+```lua
+require("resession").setup(extensions = {
+  bufstack = {}
 })
 ```
 
@@ -46,6 +72,7 @@ require('bufstack').setup({
 - `BufStackPrev`: Navigates to the previous tracked buffer.
 - `BufStackList`: Lists tracked buffers in a menu.
 - `BufClosedList`: Lists recently closed buffers in a menu.
+- `BufStackTelescope`: Lists recently closed buffers in telescope.
 - `BufReopen`: Reopens the last closed buffer.
 - `BufStackClear`: Clears the list of tracked buffers.
 - `BufClosedClear`: Clears the list of closed buffers.
@@ -58,6 +85,7 @@ vim.keymap.set('n', '<leader>bn', '<Cmd>BufStackNext<CR>')
 vim.keymap.set('n', '<leader>bp', '<Cmd>BufStackPrev<CR>')
 vim.keymap.set('n', '<leader>bl', '<Cmd>BufStackList<CR>')
 vim.keymap.set('n', '<leader>br', '<Cmd>BufReopen<CR>')
+vim.keymap.set('n', '<leader>bt', '<Cmd>BufStackTelescope<CR>')
 ```
 
 ### Keymaps in Menu
@@ -75,15 +103,28 @@ Keymaps in the menu are:
 - t to move item to the top of the list
 - x to close buffer (only in tracked buffer menu)
 
+### Keymaps in Telescope
+
+Telescope picker can be opened with `BufStackTelescope` command.
+
+Keymaps in telescope are:
+
+- d to remove item from list
+- D to clear all closed buffers
+- t to move item to the top of the list
+
 ## Dependencies
 
-- [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- [nui.nvim](https://github.com/MunifTanjim/nui.nvim) (optional)
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (optional)
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) (optional)
+- [resession.nvim](https://github.com/stevearc/resession.nvim) (optional)
 
 ## Credits
 
 - [buftrack](https://github.com/bloznelis/buftrack.nvim)
 - [memento](https://github.com/gaborvecsei/memento.nvim/tree/master)
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 
 ## License
 
