@@ -1,24 +1,27 @@
 local core = require("bufstack.core")
 local utils = require("bufstack.utils")
 
+local function shortenPathIfNeeded(path)
+	if core.opts.shorten_path then
+		return utils.shorten_path(path)
+	end
+	return path
+end
+
 local function reopen()
-	local fullNameMapping = {}
 	local function createFinder()
-		fullNameMapping = {}
-		local bufNames = {}
-		for i = #core.closed_buffers, 1, -1 do
-			local fullName = core.closed_buffers[i]
-			local buf = fullName
-			if core.opts.shorten_path then
-				buf = utils.shorten_path(buf)
-			end
-			table.insert(bufNames, buf)
-			fullNameMapping[buf] = fullName
-		end
 		return require("telescope.finders").new_table({
-			results = bufNames,
+			results = core.closed_buffers,
+			entry_maker = function(entry)
+				return {
+					display = shortenPathIfNeeded(entry),
+					value = entry,
+					ordinal = entry,
+				}
+			end,
 		})
 	end
+
 	require("telescope.pickers")
 		.new(
 			{},
@@ -45,7 +48,7 @@ local function reopen()
 							if action == "refresh" then
 								for _, selection in ipairs(selections) do
 									if selection ~= nil then
-										callback(fullNameMapping[selection.value])
+										callback(selection.value)
 									end
 								end
 								current_picker:refresh(createFinder())
@@ -53,7 +56,7 @@ local function reopen()
 								actions.close(prompt_bufnr)
 								for _, selection in ipairs(selections) do
 									if selection ~= nil then
-										callback(fullNameMapping[selection.value])
+										callback(selection.value)
 									end
 								end
 							end
