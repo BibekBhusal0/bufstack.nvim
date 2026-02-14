@@ -1,11 +1,26 @@
 local core = require("bufstack.core")
 local utils = require("bufstack.utils")
 
-local function shortenPathIfNeeded(path)
+local function get_path_hl(path)
+	local p = path
+	local style
+
 	if core.opts.shorten_path then
-		return utils.shorten_path(path)
+		p = utils.shorten_path(path)
 	end
-	return path
+	local has_devicons, devicons = pcall(require, "nvim-web-devicons")
+	if has_devicons then
+		if not devicons.has_loaded() then
+			devicons.setup()
+		end
+		local icon, color = devicons.get_icon(path)
+		if icon then
+			p = icon .. " " .. p
+			style = { { { 0, #icon + 1 }, color } }
+		end
+	end
+
+	return p, style
 end
 
 local function reopen()
@@ -13,8 +28,11 @@ local function reopen()
 		return require("telescope.finders").new_table({
 			results = core.closed_buffers,
 			entry_maker = function(entry)
+				local display_text, style = get_path_hl(entry)
 				return {
-					display = shortenPathIfNeeded(entry),
+					display = function()
+						return display_text, style
+					end,
 					value = entry,
 					ordinal = entry,
 				}
