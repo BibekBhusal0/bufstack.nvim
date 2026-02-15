@@ -25,6 +25,7 @@ return {
         'MunifTanjim/nui.nvim',        -- optional: required for menu
         'nvim-lua/plenary.nvim',       -- optional: required to shorten path
         'nvim-telescope/telescope.nvim', -- optional: required for telescope picker
+        'nvim-tree/nvim-web-devicons', -- optional: required for icon in telescope picker
         'stevearc/resession.nvim'      -- optional: for session persistence
     },
     opts = {
@@ -113,6 +114,10 @@ Keymaps in telescope are:
 - D to clear all closed buffers
 - t to move item to the top of the list
 
+> [!NOTE]
+> Your other keymaps like open in split are still valid.
+> Those keymaps also work with multiple items selected
+
 ## Dependencies
 
 > [!NOTE]
@@ -121,6 +126,7 @@ Keymaps in telescope are:
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim) ( Add this if you use commands `BufClosedList` or `BufStackList`)
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (Add this if you set `shorten_path` to true)
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) (Add this if you use command `BufStackTelescope`)
+- [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) (Add this if you need icons inside telescope)
 - [resession.nvim](https://github.com/stevearc/resession.nvim) (Add this for session management)
 
 ## Credits
