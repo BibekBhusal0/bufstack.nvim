@@ -1,7 +1,8 @@
 local core = require("bufstack.core")
 local utils = require("bufstack.utils")
 
-local function get_path_hl(path)
+local function get_path_hl(entry)
+  local path = entry.value
 	local p = path
 	local style
 
@@ -28,11 +29,8 @@ local function reopen()
 		return require("telescope.finders").new_table({
 			results = core.closed_buffers,
 			entry_maker = function(entry)
-				local display_text, style = get_path_hl(entry)
 				return {
-					display = function()
-						return display_text, style
-					end,
+					display = get_path_hl,
 					value = entry,
 					ordinal = entry,
 				}
