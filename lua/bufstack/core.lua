@@ -7,20 +7,20 @@ M.cycling = false
 M.max_tracked = 16
 M.closed_buffers = {}
 M.opts = {
-  max_tracked = 16,
-  shorten_path = false,
-  telescope_config = {
-    sorting_strategy = 'ascending',
-    layout_config = {
-      prompt_position = 'top',
-      width = function(_, max_columns, _)
-        return math.min(max_columns, 80)
-      end,
-      height = function(_, _, max_lines)
-        return math.min(max_lines, 20)
-      end,
-    },
-  }
+	max_tracked = 16,
+	shorten_path = false,
+	telescope_config = {
+		sorting_strategy = "ascending",
+		layout_config = {
+			prompt_position = "top",
+			width = function(_, max_columns, _)
+				return math.min(max_columns, 80)
+			end,
+			height = function(_, _, max_lines)
+				return math.min(max_lines, 20)
+			end,
+		},
+	},
 }
 
 function M.track_buffer()
@@ -102,10 +102,18 @@ function M.prev_buffer()
 	M.cycling = false
 end
 
+function M.restore_cursor()
+	vim.cmd('normal! g`"')
+	vim.schedule(function()
+		vim.cmd("normal! zz")
+	end)
+end
+
 function M.reopen_buffer()
 	if #M.closed_buffers > 0 then
 		local last_closed_buf = table.remove(M.closed_buffers)
 		vim.cmd("edit " .. last_closed_buf)
+		M.restore_cursor()
 	else
 		print("No closed buffers to reopen.")
 	end
@@ -114,6 +122,7 @@ end
 function M.reopen_buffer_w_name(buffer)
 	vim.cmd("edit" .. buffer)
 	M.remove_from_closed_list(buffer)
+	M.restore_cursor()
 end
 
 function M.remove_from_closed_list(buffer)
